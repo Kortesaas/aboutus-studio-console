@@ -67,7 +67,7 @@ button:focus-visible {
   scroll-behavior: smooth;
   overscroll-behavior-x: contain;
   scrollbar-width: none;
-  touch-action: pan-x;
+  touch-action: pan-x pan-y;
 }
 
 .page-scroller::-webkit-scrollbar {
@@ -78,7 +78,7 @@ button:focus-visible {
   flex: 0 0 100vw;
   width: 100vw;
   height: 100dvh;
-  padding: 0 clamp(28px, 4vw, 56px) 48px;
+  padding: 0 max(clamp(28px, 4vw, 56px), calc((100vw - 1480px) / 2)) 48px;
   overflow: hidden;
   scroll-snap-align: start;
   scroll-snap-stop: always;
@@ -305,6 +305,7 @@ h2 {
   height: calc(100dvh - 228px);
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
+  max-height: 620px;
 }
 
 .room-card {
@@ -425,6 +426,7 @@ h2 {
   padding-top: 26px;
   grid-template-columns: 1.55fr 1fr;
   gap: 18px;
+  max-height: 380px;
 }
 
 .weather-hero,
@@ -558,6 +560,7 @@ h2 {
   min-height: 205px;
   margin-top: 16px;
   padding: 19px 24px;
+  max-height: 300px;
 }
 
 .section-heading {
@@ -621,6 +624,7 @@ h2 {
   height: calc(100dvh - 236px);
   grid-template-columns: 1.3fr 0.9fr;
   gap: 18px;
+  max-height: 620px;
 }
 
 .system-panel {
@@ -714,7 +718,7 @@ h2 {
   height: 68px;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .dashboard-page {
     padding-inline: 24px;
   }
@@ -740,7 +744,269 @@ h2 {
   }
 }
 
-@media (max-height: 650px) {
+@media (max-width: 900px) {
+  .dashboard-page {
+    padding: 0 20px 64px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    scrollbar-width: none;
+  }
+
+  .dashboard-page::-webkit-scrollbar {
+    display: none;
+  }
+
+  .studio-toolbar {
+    height: auto;
+    min-height: 112px;
+    gap: 20px;
+  }
+
+  .studio-toolbar > div:first-child {
+    flex: 1;
+  }
+
+  .group-control-compact {
+    min-width: 330px;
+  }
+
+  .rooms-grid {
+    height: auto;
+    max-height: none;
+    grid-template-columns: 1fr;
+  }
+
+  .room-card {
+    min-height: 360px;
+  }
+
+  .device-grid {
+    min-height: 260px;
+  }
+
+  .weather-layout {
+    height: auto;
+    max-height: none;
+    grid-template-columns: 1.2fr 1fr;
+  }
+
+  .weather-hero,
+  .weather-details {
+    min-height: 315px;
+  }
+
+  .hourly-card {
+    height: 280px;
+    max-height: none;
+  }
+
+  .system-grid {
+    height: auto;
+    max-height: none;
+    grid-template-columns: 1fr;
+  }
+
+  .system-panel {
+    min-height: 430px;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-page {
+    padding: 0 14px 62px;
+  }
+
+  .status-bar {
+    position: sticky;
+    z-index: 5;
+    top: 0;
+    height: 58px;
+    background: rgba(9, 13, 20, 0.92);
+    backdrop-filter: blur(12px);
+  }
+
+  .status-brand {
+    gap: 10px;
+  }
+
+  .brand-mark {
+    width: 30px;
+    height: 30px;
+    font-size: 13px;
+  }
+
+  .status-meta {
+    gap: 14px;
+  }
+
+  .status-meta time {
+    font-size: 16px;
+  }
+
+  .connection-status {
+    width: 18px;
+    overflow: hidden;
+    color: transparent;
+    font-size: 0;
+  }
+
+  h1 {
+    font-size: clamp(27px, 9vw, 34px);
+  }
+
+  h2 {
+    font-size: 19px;
+  }
+
+  .studio-toolbar {
+    min-height: 0;
+    padding: 22px 0 16px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .group-control-compact {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .room-card {
+    min-height: 0;
+    padding: 14px;
+  }
+
+  .group-control {
+    gap: 8px;
+  }
+
+  .group-heading {
+    gap: 9px;
+  }
+
+  .group-actions {
+    gap: 6px;
+  }
+
+  .group-actions button {
+    width: 64px;
+    height: 50px;
+  }
+
+  .device-grid {
+    height: auto;
+    min-height: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  .device-tile {
+    min-height: 156px;
+    padding: 14px 13px;
+  }
+
+  .device-copy strong {
+    font-size: 15px;
+  }
+
+  .weather-layout {
+    padding-top: 18px;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .weather-hero,
+  .weather-details {
+    min-height: 0;
+  }
+
+  .weather-hero {
+    height: 270px;
+    padding: 24px;
+  }
+
+  .weather-current {
+    gap: 24px;
+  }
+
+  .weather-current > strong {
+    font-size: 86px;
+  }
+
+  .weather-details {
+    padding: 10px;
+  }
+
+  .weather-details .metric-card {
+    min-height: 68px;
+  }
+
+  .hourly-card {
+    height: auto;
+    min-height: 0;
+    margin-top: 12px;
+    padding: 18px 14px;
+  }
+
+  .hourly-grid {
+    height: auto;
+    margin-top: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .hour-item {
+    min-height: 112px;
+    border-bottom: 1px solid rgba(141, 153, 170, 0.12);
+  }
+
+  .hour-item:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .hour-item:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+
+  .system-heading {
+    height: auto;
+    padding: 22px 0 16px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .system-grid {
+    gap: 12px;
+  }
+
+  .system-panel {
+    min-height: 0;
+    padding: 18px;
+  }
+
+  .storage-copy {
+    margin-top: 30px;
+  }
+
+  .storage-copy strong {
+    font-size: 39px;
+  }
+
+  .storage-bar {
+    margin-bottom: 18px;
+  }
+
+  .nas-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .network-hero {
+    margin: 22px 0 16px;
+  }
+}
+
+@media (max-height: 650px) and (min-width: 901px) {
   .status-bar {
     height: 58px;
   }
