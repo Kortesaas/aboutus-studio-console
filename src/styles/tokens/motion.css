@@ -1,0 +1,10 @@
+/* Motion — deliberately minimal; this screen is lit 24 hours a day.
+   Ported from examples/Studio Console Design System/tokens/motion.css. */
+:root {
+  --dur-instant: 80ms;
+  --dur-fast: 140ms;
+  --dur-page: 220ms;
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --press-scale: 0.985;
+}

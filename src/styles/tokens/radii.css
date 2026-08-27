@@ -1,0 +1,8 @@
+/* Corner radii — exact values ported from examples/Studio Console Design System/tokens/radii.css. */
+:root {
+  --radius-sm: 8px;
+  --radius-md: 12.000000953674316px;
+  --radius-lg: 15.000000953674316px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+}

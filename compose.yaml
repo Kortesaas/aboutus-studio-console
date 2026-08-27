@@ -1,0 +1,23 @@
+services:
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - homeassistant
+    ports:
+      - "8080:80"
+
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    restart: unless-stopped
+    environment:
+      TZ: Europe/Berlin
+    volumes:
+      - homeassistant_config:/config
+    ports:
+      - "8123:8123"
+
+volumes:
+  homeassistant_config:

@@ -1,0 +1,52 @@
+/* Base reset — ported from examples/Studio Console Design System/tokens/base.css. */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  min-width: 320px;
+  background: var(--surface-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-core);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font-family: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a { color: var(--text-accent); text-decoration: none; }
+a:hover { color: var(--blue-400); }
+
+:where(button, [role="button"], [tabindex], input, select):focus-visible {
+  outline: none;
+  box-shadow: var(--ring-accent), 0 0 0 3px rgba(0, 117, 255, 0.28);
+}
+
+::selection { background: rgba(0, 117, 255, 0.35); }
+
+h1, h2, h3, p, dl, dd { margin: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

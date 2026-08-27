@@ -2,41 +2,58 @@ import type { Device } from '../services/smartHome'
 
 interface DeviceTileProps {
   device: Device
+  disabled?: boolean
   onToggle: (device: Device) => void
 }
 
-function DeviceIcon({ kind }: Pick<Device, 'kind'>) {
-  if (kind === 'light') {
-    return (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M9 18h6M10 22h4M8.2 14.5A6 6 0 1 1 15.8 14.5C14.7 15.4 14 16.1 14 18h-4c0-1.9-.7-2.6-1.8-3.5Z" />
-      </svg>
-    )
-  }
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M8 3v5M16 3v5M6 8h12v3a6 6 0 0 1-6 6v4M9 21h6" />
-    </svg>
-  )
+type Variant = 'on' | 'off' | 'pending' | 'stale' | 'unavailable' | 'unknown' | 'unconfigured'
+
+const LABEL: Record<Variant, string> = {
+  on: 'On',
+  off: 'Off',
+  pending: 'Sending',
+  stale: 'Stale',
+  unavailable: 'Unavailable',
+  unknown: 'Unknown',
+  unconfigured: 'Unavailable',
 }
 
-export function DeviceTile({ device, onToggle }: DeviceTileProps) {
+const HINT: Record<Device['kind'], string> = {
+  light: 'Light',
+  switch: 'Switch',
+}
+
+function variantFor(device: Device): Variant {
+  if (device.isPending) return 'pending'
+  if (device.isStale) return 'stale'
+  return device.state
+}
+
+export function DeviceTile({ device, disabled = false, onToggle }: DeviceTileProps) {
+  const variant = variantFor(device)
+  const hasKnownState = device.state === 'on' || device.state === 'off'
+  const isDisabled = disabled || !hasKnownState || device.isStale || device.isPending
+
   return (
     <button
-      className={`device-tile ${device.isOn ? 'is-on' : 'is-off'}`}
+      className={`ds-device-tile ds-device-tile--${variant}`}
       type="button"
-      aria-pressed={device.isOn}
+      role="switch"
+      aria-checked={hasKnownState ? device.state === 'on' : undefined}
+      aria-label={`${device.name} — ${LABEL[variant]}`}
+      disabled={isDisabled}
       onClick={() => onToggle(device)}
     >
-      <span className="device-icon"><DeviceIcon kind={device.kind} /></span>
-      <span className="device-copy">
-        <strong>{device.name}</strong>
-        <small>{device.kind === 'light' ? 'Light' : 'Power outlet'}</small>
+      <span className="ds-device-tile-head">
+        <span className="ds-device-tile-name">{device.name}</span>
+        <span className={`ds-badge ds-badge--${variant}`}>
+          <span className={`ds-status-dot ds-status-dot--sm ds-status-dot--${variant}`} />
+          {LABEL[variant]}
+        </span>
       </span>
-      <span className="device-state">
-        <span className="state-dot" />
-        {device.isOn ? 'ON' : 'OFF'}
-      </span>
+      <span className="ds-device-tile-hint">{HINT[device.kind]}</span>
+      <span aria-hidden="true" className="ds-device-tile-rail-track" />
+      <span aria-hidden="true" className="ds-device-tile-rail" />
     </button>
   )
 }

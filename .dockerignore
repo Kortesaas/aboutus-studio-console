@@ -1,0 +1,12 @@
+node_modules
+dist
+.git
+.gitignore
+.env
+.env.*
+*.log
+.idea
+.vscode
+compose.yaml
+DEVICE_SETUP.md
+README.md

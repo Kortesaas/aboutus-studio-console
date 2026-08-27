@@ -1,0 +1,35 @@
+/* Typography — ported from examples/Studio Console Design System/tokens/typography.css.
+   14px is the workhorse size; 12px is reserved for uppercase meta labels. */
+:root {
+  --fs-label-sm: 12px;
+  --fs-label: 14px;
+  --fs-body: 16px;
+  --fs-title: 18px;
+  --fs-heading: 22px;
+  --fs-display-sm: 27px;
+  --fs-display: 40px;
+  --fs-display-lg: 60px;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  --lh-tight: 1;
+  --lh-snug: 1.25;
+  --lh-normal: 1.45;
+
+  --ls-label: 0.06em;
+  --ls-wide: 0.14em;
+  --ls-numeric: -0.01em;
+}
+
+.ds-display-lg { font: var(--fw-bold) var(--fs-display-lg) / var(--lh-tight) var(--font-numeric); letter-spacing: var(--ls-numeric); color: var(--text-primary); }
+.ds-display { font: var(--fw-bold) var(--fs-display) / var(--lh-tight) var(--font-numeric); letter-spacing: var(--ls-numeric); color: var(--text-primary); }
+.ds-display-sm { font: var(--fw-bold) var(--fs-display-sm) / var(--lh-tight) var(--font-numeric); letter-spacing: var(--ls-numeric); color: var(--text-primary); }
+.ds-heading { font: var(--fw-bold) var(--fs-heading) / var(--lh-snug) var(--font-core); color: var(--text-primary); }
+.ds-title { font: var(--fw-bold) var(--fs-title) / var(--lh-snug) var(--font-core); color: var(--text-primary); }
+.ds-body { font: var(--fw-regular) var(--fs-body) / var(--lh-normal) var(--font-core); color: var(--text-secondary); }
+.ds-label { font: var(--fw-medium) var(--fs-label) / var(--lh-snug) var(--font-core); color: var(--text-secondary); }
+.ds-label-strong { font: var(--fw-bold) var(--fs-label) / var(--lh-snug) var(--font-core); color: var(--text-primary); }
+.ds-section-label { font: var(--fw-bold) var(--fs-label-sm) / var(--lh-tight) var(--font-core); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--text-muted); }

@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { PageIndicator } from './components/PageIndicator'
+import { SettingsPanel } from './components/SettingsPanel'
+import { useSmartHome } from './context/SmartHomeProvider'
 import { StudioPage } from './pages/StudioPage'
 import { SystemPage } from './pages/SystemPage'
 import { WeatherPage } from './pages/WeatherPage'
@@ -7,6 +9,7 @@ import { WeatherPage } from './pages/WeatherPage'
 const pageLabels = ['Weather', 'Studio', 'System'] as const
 
 export default function App() {
+  const { openSettings } = useSmartHome()
   const scrollerRef = useRef<HTMLDivElement>(null)
   const frameRef = useRef<number | null>(null)
   const activePageRef = useRef(1)
@@ -28,6 +31,17 @@ export default function App() {
       window.removeEventListener('resize', handleResize)
     }
   }, [])
+
+  useEffect(() => {
+    const handleSettingsShortcut = (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.key === ',') {
+        event.preventDefault()
+        openSettings()
+      }
+    }
+    window.addEventListener('keydown', handleSettingsShortcut)
+    return () => window.removeEventListener('keydown', handleSettingsShortcut)
+  }, [openSettings])
 
   const handleScroll = () => {
     if (frameRef.current !== null) return
@@ -51,6 +65,7 @@ export default function App() {
         <SystemPage />
       </div>
       <PageIndicator activePage={activePage} labels={pageLabels} onSelect={goToPage} />
+      <SettingsPanel />
     </div>
   )
 }

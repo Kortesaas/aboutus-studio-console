@@ -1,0 +1,65 @@
+/* Colors — neutral charcoal surface ramp with a single blue accent.
+   Ported from examples/Studio Console Design System/tokens/colors.css. */
+:root {
+  /* ---- raw palette ---- */
+  --ink-1000: #0a0a0b;
+  --ink-900: #101012;
+  --ink-850: #161618;
+  --ink-800: #1c1c1f;
+  --ink-700: #26262a;
+  --ink-border: #202024;
+  --grey-700: #35353a;
+  --grey-500: #6e6e76;
+  --grey-300: #a9a9b1;
+  --grey-200: #d3d3d8;
+  --grey-100: #e9e9ec;
+  --white: #ffffff;
+
+  --blue-500: #0075ff;
+  --blue-400: #2684ff;
+  --green-500: #01b574;
+  --teal-400: #4fd1c5;
+  --red-500: #e31a1a;
+  --red-400: #f53c2b;
+  --amber-500: #f5bc5d;
+
+  /* ---- semantic surfaces ---- */
+  --surface-canvas: var(--ink-900);
+  --surface-sunken: var(--ink-1000);
+  --surface-panel: var(--ink-850);
+  --surface-card: var(--ink-800);
+  --surface-raised: var(--ink-700);
+  --surface-card-active: #1a2130;
+  --surface-control: rgba(38, 38, 42, 0.5);
+
+  /* ---- semantic text ---- */
+  --text-primary: var(--white);
+  --text-secondary: var(--grey-200);
+  --text-muted: var(--grey-300);
+  --text-disabled: var(--grey-500);
+  --text-accent: var(--blue-500);
+  --text-on-accent: var(--white);
+
+  /* ---- semantic borders ---- */
+  --border-hairline: var(--grey-500);
+  --border-default: var(--grey-700);
+  --border-strong: var(--grey-300);
+  --border-accent: var(--blue-500);
+  --border-danger: var(--red-500);
+
+  /* ---- state roles ---- */
+  --state-on: var(--blue-500);
+  --state-on-text: var(--white);
+  --state-off: var(--grey-500);
+  --state-off-text: var(--grey-300);
+  --state-mixed: var(--teal-400);
+  --state-unavailable: var(--grey-700);
+  --state-unknown: var(--grey-500);
+  --state-stale: var(--amber-500);
+  --state-pending: var(--teal-400);
+  --state-connected: var(--green-500);
+  --state-connecting: var(--teal-400);
+  --state-disconnected: var(--grey-500);
+  --state-unconfigured: var(--amber-500);
+  --state-auth-error: var(--red-400);
+}

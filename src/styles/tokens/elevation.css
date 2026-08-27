@@ -1,0 +1,14 @@
+/* Elevation — inset ring "borders" plus two shadows.
+   Ported from examples/Studio Console Design System/tokens/elevation.css. */
+:root {
+  --ring-hairline: inset 0 0 0 0.5px var(--border-hairline);
+  --ring-default: inset 0 0 0 1.5px var(--border-default);
+  --ring-accent: inset 0 0 0 1.5px var(--border-accent);
+  --ring-danger: inset 0 0 0 1px var(--border-danger);
+
+  --shadow-ambient: 0 3.5px 5.5px 0 rgba(0, 0, 0, 0.02);
+  --shadow-panel: 0 12px 32px 0 rgba(2, 5, 21, 0.45);
+
+  --elev-card: var(--ring-hairline), var(--shadow-ambient);
+  --elev-card-on: var(--ring-accent), var(--shadow-ambient);
+}
