@@ -46,12 +46,10 @@ export function DeviceTile({ device, disabled = false, onToggle }: DeviceTilePro
     >
       <span className="ds-device-tile-head">
         <span className="ds-device-tile-name">{device.name}</span>
-        <span className={`ds-badge ds-badge--${variant}`}>
-          <span className={`ds-status-dot ds-status-dot--sm ds-status-dot--${variant}`} />
-          {LABEL[variant]}
-        </span>
       </span>
-      <span className="ds-device-tile-hint">{HINT[device.kind]}</span>
+      <span className="ds-device-tile-hint">
+        {device.hint ?? HINT[device.kind]}{variant !== 'on' && variant !== 'off' ? ` · ${LABEL[variant]}` : ''}
+      </span>
       <span aria-hidden="true" className="ds-device-tile-rail-track" />
       <span aria-hidden="true" className="ds-device-tile-rail" />
     </button>

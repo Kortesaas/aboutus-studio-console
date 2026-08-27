@@ -19,7 +19,6 @@ export function PageIndicator({ activePage, labels, onSelect }: PageIndicatorPro
             onClick={() => onSelect(index)}
           >
             <span className="dot" aria-hidden="true" />
-            {active ? label : null}
           </button>
         )
       })}

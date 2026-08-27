@@ -1,19 +1,22 @@
 import { useEffect, useRef, useState } from 'react'
 import { PageIndicator } from './components/PageIndicator'
 import { SettingsPanel } from './components/SettingsPanel'
+import { StatusBar } from './components/StatusBar'
 import { useSmartHome } from './context/SmartHomeProvider'
+import { SpotifyPage } from './pages/SpotifyPage'
 import { StudioPage } from './pages/StudioPage'
 import { SystemPage } from './pages/SystemPage'
 import { WeatherPage } from './pages/WeatherPage'
 
-const pageLabels = ['Weather', 'Studio', 'System'] as const
+const pageLabels = ['Spotify', 'Weather', 'Studio', 'System'] as const
+const DEFAULT_PAGE = pageLabels.indexOf('Studio')
 
 export default function App() {
   const { openSettings } = useSmartHome()
   const scrollerRef = useRef<HTMLDivElement>(null)
   const frameRef = useRef<number | null>(null)
-  const activePageRef = useRef(1)
-  const [activePage, setActivePage] = useState(1)
+  const activePageRef = useRef(DEFAULT_PAGE)
+  const [activePage, setActivePage] = useState(DEFAULT_PAGE)
 
   const goToPage = (index: number, behavior: ScrollBehavior = 'smooth') => {
     const scroller = scrollerRef.current
@@ -22,7 +25,7 @@ export default function App() {
   }
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => goToPage(1, 'instant'))
+    const frame = window.requestAnimationFrame(() => goToPage(DEFAULT_PAGE, 'instant'))
     const handleResize = () => goToPage(activePageRef.current, 'instant')
     window.addEventListener('resize', handleResize)
     return () => {
@@ -59,7 +62,11 @@ export default function App() {
 
   return (
     <div className="app-shell">
+      <div className="app-status-bar">
+        <StatusBar pageName={pageLabels[activePage]} />
+      </div>
       <div className="page-scroller" ref={scrollerRef} onScroll={handleScroll}>
+        <SpotifyPage />
         <WeatherPage />
         <StudioPage />
         <SystemPage />

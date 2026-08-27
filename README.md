@@ -27,9 +27,9 @@ On a fresh Home Assistant volume:
 2. Create the Home Assistant admin account interactively.
 3. Optionally create a dedicated dashboard user with the minimum practical privileges.
 4. From that user's Home Assistant profile, create a Long-Lived Access Token.
-5. Open the dashboard on port 8080 and leave its Home Assistant URL as `/ha-websocket`.
-6. Paste the token into the dashboard runtime setup; it stays in that browser's local storage.
-7. Assign the discovered entities using the dashboard's runtime device mapper.
+5. Open the dashboard on port 8080, then open Settings with the hidden gesture or `Ctrl + ,`.
+6. In **Home Assistant**, leave the endpoint as `/ha-websocket`, paste the token, and test the connection. The token stays in that browser's local storage.
+7. In **Devices**, assign the discovered entities and choose **Save devices & groups**.
 
 Useful commands:
 
@@ -79,12 +79,12 @@ Local configuration belongs in ignored files such as `.env.local`. If configurat
 1. Make sure Home Assistant is running and reachable from the dashboard device.
 2. Create a dedicated Home Assistant user for the dashboard if practical.
 3. Create a Long-Lived Access Token for that user.
-4. Open the dashboard and enter the token in the connection overlay. Use `/ha-websocket` with the Docker stack; direct `http://` and `https://` Home Assistant URLs remain supported.
-5. In the device-mapping step, assign each of the six Studio slots to one of the discovered `light.*` or `switch.*` entities and choose **Save & apply**.
+4. Open dashboard Settings and enter the token in **Home Assistant**. Use `/ha-websocket` with the Docker stack; direct `http://` and `https://` Home Assistant URLs remain supported.
+5. In **Devices**, assign each of the six Studio slots to one of the discovered `light.*` or `switch.*` entities and choose **Save devices & groups**.
 
 The app authenticates through Home Assistant's WebSocket API. The token is saved only in this browser's `localStorage`; it is not stored in source control or a Vite environment variable. Clearing browser storage removes the saved connection. Because frontend credentials remain accessible on the local dashboard device, use the minimum Home Assistant privileges practical and keep physical/browser access to that device appropriately restricted.
 
-Entity mappings are stored locally in the browser and are never written into source files, so source editing is no longer required. Saved mappings are checked against the current HA state list after every connection; missing entities stay unconfigured and are never silently replaced. Tap the HA status area and choose **Device mapping** to reopen the mapper. The same panel can clear only the connection or clear both the connection and mappings.
+Entity mappings are stored locally in the browser and are never written into source files, so source editing is no longer required. Saved mappings are checked against the current HA state list after every connection; missing entities stay unresolved and are never silently replaced. Reopen Settings with the hidden status-indicator hold or `Ctrl + ,` to change mappings, credentials, room assignments, labels, or local data.
 
 The status area shows the live Home Assistant connection state. The dashboard marks a group unavailable when any member is unconfigured, `unavailable`, `unknown`, or based on stale data after a disconnect. Otherwise, groups resolve deterministically to `ON`, `OFF`, or `MIXED`.
 

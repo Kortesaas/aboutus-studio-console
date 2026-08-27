@@ -1,10 +1,14 @@
 import { configuredDevices } from '../data/devices'
 import type {
   AvailableEntity,
+  BrowseMediaNode,
   ConnectionStatus,
   Device,
   EntityMappings,
+  MediaPlayerRepeat,
+  MediaPlayerSnapshot,
   SmartHomeService,
+  WeatherSnapshot,
 } from './smartHome'
 
 export class UnconfiguredSmartHomeService implements SmartHomeService {
@@ -35,6 +39,50 @@ export class UnconfiguredSmartHomeService implements SmartHomeService {
   }
 
   async turnOff(): Promise<void> {
+    throw new Error('Home Assistant is not configured.')
+  }
+
+  async getWeather(_entityId: string): Promise<WeatherSnapshot | null> {
+    return null
+  }
+
+  async getMediaPlayer(_entityId: string): Promise<MediaPlayerSnapshot | null> {
+    return null
+  }
+
+  subscribeMediaPlayer(): () => void {
+    return () => {}
+  }
+
+  async mediaPlayerAction(): Promise<void> {
+    throw new Error('Home Assistant is not configured.')
+  }
+
+  async setMediaPlayerVolume(): Promise<void> {
+    throw new Error('Home Assistant is not configured.')
+  }
+
+  async setMediaPlayerShuffle(): Promise<void> {
+    throw new Error('Home Assistant is not configured.')
+  }
+
+  async setMediaPlayerRepeat(_entityId: string, _repeat: MediaPlayerRepeat): Promise<void> {
+    throw new Error('Home Assistant is not configured.')
+  }
+
+  async seekMediaPlayer(): Promise<void> {
+    throw new Error('Home Assistant is not configured.')
+  }
+
+  async selectMediaPlayerSource(): Promise<void> {
+    throw new Error('Home Assistant is not configured.')
+  }
+
+  async browseMedia(): Promise<BrowseMediaNode> {
+    throw new Error('Home Assistant is not configured.')
+  }
+
+  async playMedia(): Promise<void> {
     throw new Error('Home Assistant is not configured.')
   }
 

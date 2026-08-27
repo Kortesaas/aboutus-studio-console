@@ -30,9 +30,14 @@ import {
 } from '../services/homeAssistantConfig'
 import type {
   AvailableEntity,
+  BrowseMediaNode,
   ConnectionStatus,
   EntityMappings,
+  MediaPlayerAction,
+  MediaPlayerRepeat,
+  MediaPlayerSnapshot,
   SmartHomeService,
+  WeatherSnapshot,
 } from '../services/smartHome'
 
 interface SmartHomeContextValue {
@@ -46,6 +51,17 @@ interface SmartHomeContextValue {
   entityMappings: EntityMappings
   dashboardConfig: DashboardConfiguration
   lastConnectedAt: string | null
+  weather: WeatherSnapshot | null
+  weatherLoading: boolean
+  mediaPlayer: MediaPlayerSnapshot | null
+  mediaPlayerAction: (action: MediaPlayerAction) => void
+  setMediaPlayerVolume: (volume: number) => void
+  setMediaPlayerShuffle: (shuffle: boolean) => void
+  setMediaPlayerRepeat: (repeat: MediaPlayerRepeat) => void
+  seekMediaPlayer: (positionSeconds: number) => void
+  selectMediaPlayerSource: (source: string) => void
+  browseMedia: (mediaContentType?: string, mediaContentId?: string) => Promise<BrowseMediaNode>
+  playMedia: (mediaContentType: string, mediaContentId: string) => Promise<void>
   openSettings: () => void
   closeSettings: () => void
   configure: (url: string, replacementToken: string) => Promise<void>
@@ -78,6 +94,9 @@ export function SmartHomeProvider({ children }: { children: ReactNode }) {
   const [entityMappings, setEntityMappings] = useState<EntityMappings>(initialMappings)
   const [dashboardConfig, setDashboardConfig] = useState(loadDashboardConfiguration)
   const [lastConnectedAt, setLastConnectedAt] = useState<string | null>(null)
+  const [weather, setWeather] = useState<WeatherSnapshot | null>(null)
+  const [weatherLoading, setWeatherLoading] = useState(false)
+  const [mediaPlayer, setMediaPlayer] = useState<MediaPlayerSnapshot | null>(null)
 
   useEffect(() => {
     setStatus(service.getConnectionStatus())
@@ -109,6 +128,102 @@ export function SmartHomeProvider({ children }: { children: ReactNode }) {
       active = false
     }
   }, [homeAssistantConfig, service, status])
+
+  useEffect(() => {
+    const entityId = dashboardConfig.weatherEntityId
+    if (status !== 'connected' || !entityId) {
+      setWeather(null)
+      setWeatherLoading(false)
+      return
+    }
+    let active = true
+    const refresh = async () => {
+      setWeatherLoading(true)
+      try {
+        const next = await service.getWeather(entityId)
+        if (active) setWeather(next)
+      } catch {
+        if (active) setWeather(null)
+      } finally {
+        if (active) setWeatherLoading(false)
+      }
+    }
+    void refresh()
+    const timer = window.setInterval(() => void refresh(), 15 * 60 * 1000)
+    return () => {
+      active = false
+      window.clearInterval(timer)
+    }
+  }, [dashboardConfig.weatherEntityId, service, status])
+
+  useEffect(() => {
+    const entityId = dashboardConfig.mediaPlayerEntityId
+    if (status !== 'connected' || !entityId) {
+      setMediaPlayer(null)
+      return
+    }
+    let active = true
+    void service.getMediaPlayer(entityId).then((snapshot) => {
+      if (active) setMediaPlayer(snapshot)
+    }).catch(() => {
+      if (active) setMediaPlayer(null)
+    })
+    const unsubscribe = service.subscribeMediaPlayer(entityId, (snapshot) => {
+      if (active) setMediaPlayer(snapshot)
+    })
+    return () => {
+      active = false
+      unsubscribe()
+    }
+  }, [dashboardConfig.mediaPlayerEntityId, service, status])
+
+  const handleMediaPlayerAction = useCallback((action: MediaPlayerAction) => {
+    const entityId = dashboardConfig.mediaPlayerEntityId
+    if (!entityId) return
+    void service.mediaPlayerAction(entityId, action).catch(() => {})
+  }, [dashboardConfig.mediaPlayerEntityId, service])
+
+  const handleSetMediaPlayerVolume = useCallback((volume: number) => {
+    const entityId = dashboardConfig.mediaPlayerEntityId
+    if (!entityId) return
+    void service.setMediaPlayerVolume(entityId, volume).catch(() => {})
+  }, [dashboardConfig.mediaPlayerEntityId, service])
+
+  const handleSetMediaPlayerShuffle = useCallback((shuffle: boolean) => {
+    const entityId = dashboardConfig.mediaPlayerEntityId
+    if (!entityId) return
+    void service.setMediaPlayerShuffle(entityId, shuffle).catch(() => {})
+  }, [dashboardConfig.mediaPlayerEntityId, service])
+
+  const handleSetMediaPlayerRepeat = useCallback((repeat: MediaPlayerRepeat) => {
+    const entityId = dashboardConfig.mediaPlayerEntityId
+    if (!entityId) return
+    void service.setMediaPlayerRepeat(entityId, repeat).catch(() => {})
+  }, [dashboardConfig.mediaPlayerEntityId, service])
+
+  const handleSeekMediaPlayer = useCallback((positionSeconds: number) => {
+    const entityId = dashboardConfig.mediaPlayerEntityId
+    if (!entityId) return
+    void service.seekMediaPlayer(entityId, positionSeconds).catch(() => {})
+  }, [dashboardConfig.mediaPlayerEntityId, service])
+
+  const handleSelectMediaPlayerSource = useCallback((source: string) => {
+    const entityId = dashboardConfig.mediaPlayerEntityId
+    if (!entityId) return
+    void service.selectMediaPlayerSource(entityId, source).catch(() => {})
+  }, [dashboardConfig.mediaPlayerEntityId, service])
+
+  const handleBrowseMedia = useCallback((mediaContentType?: string, mediaContentId?: string) => {
+    const entityId = dashboardConfig.mediaPlayerEntityId
+    if (!entityId) return Promise.reject(new Error('No media player configured.'))
+    return service.browseMedia(entityId, mediaContentType, mediaContentId)
+  }, [dashboardConfig.mediaPlayerEntityId, service])
+
+  const handlePlayMedia = useCallback((mediaContentType: string, mediaContentId: string) => {
+    const entityId = dashboardConfig.mediaPlayerEntityId
+    if (!entityId) return Promise.reject(new Error('No media player configured.'))
+    return service.playMedia(entityId, mediaContentType, mediaContentId)
+  }, [dashboardConfig.mediaPlayerEntityId, service])
 
   const configure = useCallback(async (url: string, replacementToken: string) => {
     const token = replacementToken.trim() || homeAssistantConfig?.token || ''
@@ -156,6 +271,8 @@ export function SmartHomeProvider({ children }: { children: ReactNode }) {
     clearHomeAssistantConfig()
     setHomeAssistantConfig(null)
     setAvailableEntities([])
+    setWeather(null)
+    setMediaPlayer(null)
     setService(new UnconfiguredSmartHomeService())
     setStatus('unconfigured')
     returnToDashboard()
@@ -179,6 +296,8 @@ export function SmartHomeProvider({ children }: { children: ReactNode }) {
     setDashboardConfig(clearDashboardConfiguration())
     setHomeAssistantConfig(null)
     setAvailableEntities([])
+    setWeather(null)
+    setMediaPlayer(null)
     setEntityMappings({})
     setService(new UnconfiguredSmartHomeService())
     setStatus('unconfigured')
@@ -198,6 +317,17 @@ export function SmartHomeProvider({ children }: { children: ReactNode }) {
         entityMappings,
         dashboardConfig,
         lastConnectedAt,
+        weather,
+        weatherLoading,
+        mediaPlayer,
+        mediaPlayerAction: handleMediaPlayerAction,
+        setMediaPlayerVolume: handleSetMediaPlayerVolume,
+        setMediaPlayerShuffle: handleSetMediaPlayerShuffle,
+        setMediaPlayerRepeat: handleSetMediaPlayerRepeat,
+        seekMediaPlayer: handleSeekMediaPlayer,
+        selectMediaPlayerSource: handleSelectMediaPlayerSource,
+        browseMedia: handleBrowseMedia,
+        playMedia: handlePlayMedia,
         openSettings: () => setSettingsOpen(true),
         closeSettings: () => setSettingsOpen(false),
         configure,

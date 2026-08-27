@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { DeviceTile } from '../components/DeviceTile'
 import { GroupControl, type GroupState } from '../components/GroupControl'
-import { StatusBar } from '../components/StatusBar'
 import { useSmartHome } from '../context/SmartHomeProvider'
-import type { Device } from '../services/smartHome'
+import { ROOM_IDS, type Device, type RoomId } from '../services/smartHome'
 
 function deriveGroupState(devices: Device[]): GroupState {
   if (
@@ -14,9 +13,7 @@ function deriveGroupState(devices: Device[]): GroupState {
       device.state === 'unknown' ||
       device.state === 'unconfigured'
     )
-  ) {
-    return 'UNAVAILABLE'
-  }
+  ) return 'UNAVAILABLE'
   if (devices.every((device) => device.state === 'on')) return 'ON'
   if (devices.every((device) => device.state === 'off')) return 'OFF'
   return 'MIXED'
@@ -25,6 +22,7 @@ function deriveGroupState(devices: Device[]): GroupState {
 export function StudioPage() {
   const { service, status, dashboardConfig } = useSmartHome()
   const [devices, setDevices] = useState<Device[]>([])
+  const [pendingGroups, setPendingGroups] = useState<Set<string>>(() => new Set())
   const controlsDisabled = status !== 'connected'
 
   useEffect(() => {
@@ -47,28 +45,35 @@ export function StudioPage() {
     [dashboardConfig, devices],
   )
 
-  const devicesForRoom = (roomId: 'studio1' | 'studio2') =>
+  const devicesForRoom = (roomId: RoomId) =>
     enabledDevices.filter((device) => device.roomId === roomId)
 
-  const setGroupPower = async (deviceIds: readonly string[], isOn: boolean) => {
-    const requestedIds = new Set(deviceIds)
-    const groupDevices = enabledDevices.filter(
-      (device) => requestedIds.has(device.id),
-    ).filter(
-      (device): device is Device & { entityId: string } => device.entityId !== null,
+  const toggleGroup = async (groupId: string, groupDevices: Device[]) => {
+    const state = deriveGroupState(groupDevices)
+    if (controlsDisabled || state === 'UNAVAILABLE' || pendingGroups.has(groupId)) return
+    const turnOn = state !== 'ON'
+    const targets = groupDevices.filter(
+      (device): device is Device & { entityId: string } =>
+        Boolean(device.entityId) && device.state !== (turnOn ? 'on' : 'off'),
     )
-    await Promise.allSettled(
-      groupDevices.map((device) =>
-        isOn ? service.turnOn(device.entityId) : service.turnOff(device.entityId),
-      ),
-    )
+    if (targets.length === 0) return
+    setPendingGroups((current) => new Set(current).add(groupId))
+    try {
+      await Promise.allSettled(targets.map((device) =>
+        turnOn ? service.turnOn(device.entityId) : service.turnOff(device.entityId),
+      ))
+    } finally {
+      setPendingGroups((current) => {
+        const next = new Set(current)
+        next.delete(groupId)
+        return next
+      })
+    }
   }
 
   const toggleDevice = (device: Device) => {
     if (
-      controlsDisabled ||
-      !device.entityId ||
-      device.isStale ||
+      controlsDisabled || device.isPending || !device.entityId || device.isStale ||
       !['on', 'off'].includes(device.state)
     ) return
     const command = device.state === 'on'
@@ -77,53 +82,71 @@ export function StudioPage() {
     void command.catch(() => {})
   }
 
-  const studio1Devices = devicesForRoom('studio1')
-  const studio2Devices = devicesForRoom('studio2')
+  const devicesByRoom = Object.fromEntries(ROOM_IDS.map((roomId) => [roomId, devicesForRoom(roomId)])) as Record<RoomId, Device[]>
 
   return (
     <main className="screen-frame" aria-label="Studio controls">
-      <StatusBar pageName="Studio" />
-      <div className="screen-main">
-        <div className="studio-groups">
-          <GroupControl
-            name={dashboardConfig.groupLabels.studio1}
-            state={deriveGroupState(studio1Devices)}
-            disabled={controlsDisabled || studio1Devices.length === 0}
-            onPower={(isOn) => void setGroupPower(studio1Devices.map((device) => device.id), isOn)}
-          />
-          <GroupControl
-            name={dashboardConfig.groupLabels.studio2}
-            state={deriveGroupState(studio2Devices)}
-            disabled={controlsDisabled || studio2Devices.length === 0}
-            onPower={(isOn) => void setGroupPower(studio2Devices.map((device) => device.id), isOn)}
-          />
-          <GroupControl
-            name={dashboardConfig.groupLabels.everything}
-            state={deriveGroupState(enabledDevices)}
-            disabled={controlsDisabled || enabledDevices.length === 0}
-            onPower={(isOn) => void setGroupPower(enabledDevices.map((device) => device.id), isOn)}
-            compact
-          />
-        </div>
+      <div className="screen-main studio-layout">
+        <section className="studio-rooms" aria-label="Rooms">
+          <div className="ds-section-label-row">
+            <span className="label">Rooms</span>
+            <span className="rule" aria-hidden="true" />
+          </div>
+          <div className="studio-rooms-grid">
+            {ROOM_IDS.map((roomId) => (
+              <GroupControl
+                key={roomId}
+                name={dashboardConfig.groupLabels[roomId]}
+                state={deriveGroupState(devicesByRoom[roomId])}
+                count={devicesByRoom[roomId].length}
+                pending={pendingGroups.has(roomId)}
+                disabled={controlsDisabled}
+                variant="room"
+                onToggle={() => void toggleGroup(roomId, devicesByRoom[roomId])}
+              />
+            ))}
+            <GroupControl
+              name={dashboardConfig.groupLabels.everything}
+              state={deriveGroupState(enabledDevices)}
+              count={enabledDevices.length}
+              pending={pendingGroups.has('everything')}
+              disabled={controlsDisabled}
+              variant="room"
+              onToggle={() => void toggleGroup('everything', enabledDevices)}
+            />
+          </div>
+        </section>
 
-        {(['studio1', 'studio2'] as const).map((roomId) => {
-          const groupDevices = roomId === 'studio1' ? studio1Devices : studio2Devices
-          const onCount = groupDevices.filter((device) => device.state === 'on').length
+        {ROOM_IDS.map((roomId) => {
+          const roomDevices = devicesByRoom[roomId]
+          const customGroups = dashboardConfig.customGroups.filter((group) => group.roomId === roomId)
+          if (roomDevices.length === 0 && customGroups.length === 0) return null
+          const onCount = roomDevices.filter((device) => device.state === 'on').length
           return (
-            <section className="studio-room" key={roomId} aria-label={dashboardConfig.groupLabels[roomId]}>
+            <section className="studio-room-section" key={roomId} aria-label={dashboardConfig.groupLabels[roomId]}>
               <div className="ds-section-label-row">
                 <span className="label">{dashboardConfig.groupLabels[roomId]}</span>
                 <span className="rule" aria-hidden="true" />
-                <span className="meta">{onCount} of {groupDevices.length} on</span>
+                <span className="meta">{onCount} of {roomDevices.length} on</span>
               </div>
-              <div className="studio-room-devices">
-                {groupDevices.map((device) => (
-                  <DeviceTile
-                    key={device.id}
-                    device={device}
-                    disabled={controlsDisabled}
-                    onToggle={toggleDevice}
-                  />
+              <div className="studio-fixture-grid">
+                {customGroups.map((group) => {
+                  const members = roomDevices.filter((device) => group.deviceIds.includes(device.id))
+                  return (
+                    <GroupControl
+                      key={group.id}
+                      name={group.name}
+                      state={deriveGroupState(members)}
+                      count={members.length}
+                      pending={pendingGroups.has(group.id)}
+                      disabled={controlsDisabled}
+                      variant="group"
+                      onToggle={() => void toggleGroup(group.id, members)}
+                    />
+                  )
+                })}
+                {roomDevices.map((device) => (
+                  <DeviceTile key={device.id} device={device} disabled={controlsDisabled} onToggle={toggleDevice} />
                 ))}
               </div>
             </section>

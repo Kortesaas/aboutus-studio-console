@@ -142,6 +142,7 @@
 }
 .ds-icon-button:active:not(:disabled) { transform: scale(var(--press-scale)); }
 .ds-icon-button:disabled { color: var(--text-disabled); background: var(--surface-raised); box-shadow: var(--ring-hairline); cursor: not-allowed; }
+.ds-icon-button.is-active { color: var(--text-on-accent); background: var(--state-on); box-shadow: none; }
 
 /* ---------- TopBar ---------- */
 .ds-topbar {
@@ -223,9 +224,10 @@
 .ds-page-indicator-dot {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
-  height: 32px;
-  padding: 0 var(--space-2);
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  justify-content: center;
   color: var(--text-disabled);
   font-size: var(--fs-label-sm);
   font-weight: var(--fw-bold);
@@ -243,19 +245,38 @@
 .ds-page-indicator-dot.active { color: var(--text-secondary); }
 .ds-page-indicator-dot.active > .dot { background: var(--text-secondary); box-shadow: none; }
 
-/* ---------- GroupCard ---------- */
+/* ---------- GroupCard ----------
+   Two size variants: --room (full-width hero row for the whole-room/global toggles
+   at the top of Studio) and --group (square tile, sized like a DeviceTile, for the
+   custom fixture-groups nested inside each room section). */
 .ds-group-card {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: var(--space-4);
-  min-height: var(--group-card-h);
-  padding: var(--space-5);
+  align-items: stretch;
+  min-width: 0;
+  text-align: left;
   border-radius: var(--radius-lg);
   background: var(--surface-card);
   box-shadow: var(--ring-hairline), var(--shadow-ambient);
+  transition: background var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard), transform var(--dur-instant) var(--ease-standard);
 }
-.ds-group-card--global { background: var(--surface-raised); box-shadow: var(--ring-default), var(--shadow-ambient); }
+.ds-group-card:active:not(:disabled) { transform: scale(var(--press-scale)); }
+.ds-group-card--room {
+  min-height: var(--group-card-h);
+  padding: var(--space-5);
+  background: var(--surface-raised);
+  box-shadow: var(--ring-default), var(--shadow-ambient);
+}
+.ds-group-card--group {
+  aspect-ratio: 1;
+  padding: var(--space-4);
+  background: var(--surface-raised);
+}
+.ds-group-card--on { background: var(--surface-card-active); box-shadow: var(--ring-accent), var(--shadow-ambient); }
+.ds-group-card--pending { box-shadow: inset 0 0 0 1.5px var(--state-pending), var(--shadow-ambient); }
 .ds-group-card--disabled { opacity: 0.72; }
 .ds-group-card-head {
   display: flex;
@@ -264,25 +285,29 @@
   gap: var(--space-3);
 }
 .ds-group-card-name {
-  font-size: var(--fs-label);
+  font-size: var(--fs-heading);
   font-weight: var(--fw-bold);
+  line-height: var(--lh-snug);
   color: var(--text-primary);
 }
-.ds-group-card--global .ds-group-card-name {
-  letter-spacing: var(--ls-label);
-  text-transform: uppercase;
-}
+.ds-group-card--group .ds-group-card-name { font-size: var(--fs-title); }
 .ds-group-card--disabled .ds-group-card-name { color: var(--text-disabled); }
-.ds-group-card-meta {
+.ds-group-card-hint {
   font-size: var(--fs-label-sm);
   letter-spacing: var(--ls-label);
   text-transform: uppercase;
   color: var(--text-muted);
 }
-.ds-group-card-actions {
-  display: flex;
-  gap: var(--space-2);
+.ds-group-card-rail {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: transparent;
 }
+.ds-group-card--on .ds-group-card-rail { background: var(--state-on); }
+.ds-group-card--pending .ds-group-card-rail { width: 45%; background: var(--state-pending); }
 
 /* ---------- DeviceTile ---------- */
 .ds-device-tile {
@@ -293,8 +318,9 @@
   justify-content: space-between;
   align-items: stretch;
   text-align: left;
-  min-height: var(--tile-h);
-  padding: var(--space-5);
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: var(--space-4);
   border-radius: var(--radius-lg);
   background: var(--surface-card);
   box-shadow: var(--ring-hairline), var(--shadow-ambient);
@@ -327,6 +353,24 @@
 .ds-device-tile--unconfigured .ds-device-tile-name,
 .ds-device-tile--stale .ds-device-tile-name { color: var(--text-disabled); }
 .ds-device-tile--pending .ds-device-tile-name { color: var(--text-primary); }
+
+.ds-device-status {
+  max-width: 76px;
+  overflow: hidden;
+  font-size: 9px;
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-muted);
+}
+.ds-device-status--pending { color: var(--state-pending); }
+.ds-device-status--mixed { color: var(--state-mixed); }
+.ds-device-status--unavailable,
+.ds-device-status--stale,
+.ds-device-status--unknown,
+.ds-device-status--unconfigured { color: var(--text-disabled); }
 
 .ds-device-tile-hint {
   display: block;

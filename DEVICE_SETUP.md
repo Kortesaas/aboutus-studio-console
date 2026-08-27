@@ -1,6 +1,6 @@
 # Studio fixture setup
 
-Complete Home Assistant's first-run onboarding before adding fixtures. After an entity appears in Home Assistant, open the dashboard, tap the HA status area, choose **Device mapping**, assign the entity, then choose **Save & apply**.
+Complete Home Assistant's first-run onboarding before adding fixtures. After an entity appears in Home Assistant, open dashboard Settings by holding the HA status indicator for approximately 1.5 seconds or pressing `Ctrl + ,`. In **Devices**, assign the entity and choose **Save devices & groups**.
 
 ## Tapo L920-5 RGBIC LED Strip
 

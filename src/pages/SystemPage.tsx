@@ -1,5 +1,4 @@
 import { MetricCard } from '../components/MetricCard'
-import { StatusBar } from '../components/StatusBar'
 import { mockSystem } from '../data/mockSystem'
 
 export function SystemPage() {
@@ -8,7 +7,6 @@ export function SystemPage() {
 
   return (
     <main className="screen-frame" aria-label="System status">
-      <StatusBar pageName="System" />
       <div className="screen-main">
         <div className="system-metrics">
           <MetricCard label="CPU" value={nas.cpuPercent} unit="%" />
